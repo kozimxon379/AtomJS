@@ -1,0 +1,1 @@
+import{t as e}from"./vendor-8iLmkU58.js";import{Nt as t,pn as n}from"./index-DXWK4CxW.js";import{r,t as i}from"./SendToGroup-DzFUNu8L.js";var a=e();function o({payload:e}){let{t:o}=n();return(0,a.jsx)(i,{label:o(`sendResults`),doneLabel:o(`sendResultsDone`),icon:(0,a.jsx)(t,{size:15}),disabled:!e.players.length,onSend:t=>r({...e,group:t})})}export{o as t};

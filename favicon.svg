@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- atomjs belgisi — «atomlabs» tilida: siyoh plitka + aksent rangli
+       qattiq soya (saytdagi kartochkalar kabi), bo'r orbitalar va kesik
+       burchakli yadro. Geometriya scripts/pwa-icons.py bilan bir xil. -->
+  <rect x="3" y="3" width="29" height="29" rx="7" fill="#e4572e"/>
+  <rect x="0" y="0" width="29" height="29" rx="7" fill="#14213d"/>
+  <g fill="none" stroke-width="1.4">
+    <ellipse cx="14.5" cy="14.5" rx="11" ry="4.3" stroke="#e6ebf5" stroke-opacity=".55" transform="rotate(60 14.5 14.5)"/>
+    <ellipse cx="14.5" cy="14.5" rx="11" ry="4.3" stroke="#e6ebf5" stroke-opacity=".55" transform="rotate(120 14.5 14.5)"/>
+    <ellipse cx="14.5" cy="14.5" rx="11" ry="4.3" stroke="#ff7a4d"/>
+  </g>
+  <circle cx="25.5" cy="14.5" r="1.7" fill="#ff7a4d"/>
+  <path d="M10.5 10.5h8v5.4l-2.6 2.6h-5.4z" fill="#ff7a4d" stroke="#14213d" stroke-width="1.3" stroke-linejoin="round"/>
+</svg>

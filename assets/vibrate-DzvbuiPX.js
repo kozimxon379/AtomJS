@@ -1,0 +1,1 @@
+import{r as e}from"./rolldown-runtime-QTnfLwEv.js";import{g as t}from"./vendor-8iLmkU58.js";var n=e(t(),1),r={ok:[35],bad:[70,50,70],turn:[25,40,25]};function i(e){try{navigator.vibrate?.([...r[e]])}catch{}}function a(e){let t=(0,n.useRef)(e);(0,n.useEffect)(()=>{e&&!t.current&&i(`turn`),t.current=e},[e])}export{a as n,i as t};

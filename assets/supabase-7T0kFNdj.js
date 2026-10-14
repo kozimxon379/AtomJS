@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/supabase-client-BAcvd0XH.js","assets/rolldown-runtime-QTnfLwEv.js","assets/vendor-8iLmkU58.js"])))=>i.map(i=>d[i]);
+import{o as e}from"./vendor-8iLmkU58.js";var t=!0,n=null;function r(){return t?(n??=e(()=>import(`./supabase-client-BAcvd0XH.js`).then(e=>e.n).then(e=>e.supabase),__vite__mapDeps([0,1,2])),n):Promise.resolve(null)}export{r as n,t};

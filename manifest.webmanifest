@@ -1,0 +1,26 @@
+{
+  "name": "atomjs — JavaScript, HTML va CSS",
+  "short_name": "atomjs",
+  "description": "Brauzerda JavaScript, HTML va CSS o'rganish: darslik, topshiriqlar, kod muharriri va sinf o'yinlari.",
+  "lang": "uz",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eef2f6",
+  "theme_color": "#eef2f6",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "O'ynash (PIN)", "url": "/play" },
+    { "name": "Kod muharriri", "url": "/code" },
+    { "name": "Darslik", "url": "/learn" }
+  ]
+}

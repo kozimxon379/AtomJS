@@ -1,0 +1,1 @@
+function e(e,t){let n,r=()=>{n!==void 0&&(clearInterval(n),n=void 0)},i=()=>{r(),n=setInterval(e,t)},a=()=>{document.visibilityState===`visible`?(e(),i()):r()};return document.visibilityState===`visible`&&i(),document.addEventListener(`visibilitychange`,a),()=>{r(),document.removeEventListener(`visibilitychange`,a)}}export{e as t};

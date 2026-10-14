@@ -1,0 +1,1 @@
+import{t as e}from"./vendor-8iLmkU58.js";import{Nt as t,pn as n}from"./index-DXWK4CxW.js";import{n as r,t as i}from"./SendToGroup-DzFUNu8L.js";var a=e();function o({kind:e,pin:o,title:s}){let{t:c}=n();return(0,a.jsx)(i,{label:c(`qSendLink`),doneLabel:c(`qSendLinkDone`),icon:(0,a.jsx)(t,{size:15}),onSend:t=>r({kind:e,pin:o,title:s,group:t})})}export{o as t};

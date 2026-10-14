@@ -1,0 +1,495 @@
+<!doctype html>
+<!-- `translate="no"` ATAYLAB: brauzer tarjimasi React'ni yiqitadi.
+     Google Translate matn tugunlarini `<font>` ichiga o'raydi, React esa
+     o'zi yaratgan tugunni qidirib topolmay `insertBefore` bilan yiqiladi
+     (o'quvchi ekranida «Unexpected Application Error»). Eng ko'p matn
+     almashtiradigan sahifalarda (`/atomtype` taymer va harflari) bu deyarli
+     darhol sodir bo'ladi. Saytning o'z tili tanlovi bor (uz/en/ru), shuning
+     uchun brauzer tarjimasi baribir kerak emas. -->
+<html lang="uz" translate="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="google" content="notranslate" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- PWA: o'rnatish (bosh ekranga qo'shish) va offline — `public/sw.js`. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>atomjs — brauzerdagi kod laboratoriyasi</title>
+
+    <!-- Ulashish preview'i. Har o'yin havolasi (`atomjs.uz/atoot/378327`)
+         Telegram guruhiga tashlanadi — usiz u yerda quruq havola chiqadi.
+         ⚠️ Manzil bu yerda HARDCODE: `index.html` statik, `domain.ts` dagi
+         `CANONICAL_HOST` bu yerga yetib kelmaydi. Domen o'zgarsa ikkalasini
+         ham yangilang. Rasm: `public/og.png` (`scripts/og-image.py`). -->
+    <meta
+      name="description"
+      content="atomjs — brauzerda JavaScript, HTML va CSS o'rganish: darslik, 202 topshiriq, jonli kod muharriri va sinf o'yinlari (viktorina, tez yozish poygasi, UNO)."
+    />
+    <meta name="theme-color" content="#eef2f6" />
+    <link rel="canonical" href="https://atomjs.uz/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="atomjs" />
+    <meta property="og:url" content="https://atomjs.uz/" />
+    <meta property="og:title" content="atomjs — brauzerda JS, HTML va CSS" />
+    <meta
+      property="og:description"
+      content="Darslik, 202 topshiriq, jonli kod muharriri va sinf o'yinlari. O'rnatish shart emas — brauzerning o'zida ishlaydi."
+    />
+    <meta property="og:image" content="https://atomjs.uz/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="atomjs — atom belgisi va nomi" />
+    <meta property="og:locale" content="uz_UZ" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="atomjs — brauzerda JS, HTML va CSS" />
+    <meta
+      name="twitter:description"
+      content="Darslik, 202 topshiriq, jonli kod muharriri va sinf o'yinlari."
+    />
+    <meta name="twitter:image" content="https://atomjs.uz/og.png" />
+
+    <!-- Boshlang'ich ekran: bundle yuklanguncha darhol ko'rinadi (JS'siz).
+         «Atom laboratoriyasi» tilida: katak-qog'oz fon, orbitalar chiziladi
+         va aylanadi, yadro «tushadi», nom harf-harf ko'tariladi, pastda esa
+         jonli mashg'ulotlarning element kataklari birin-ketin chiqadi (u
+         progres vazifasini ham bajaradi). Ranglar `themes.ts` dagi
+         LAB_SHELL / LAB_DARK bilan bir xil, rejim `atomjs.mode` dan (pastdagi
+         skript). Shriftlar ataylab tizimniki — bundle shrifti kelganda
+         matn «sakramasin». -->
+    <style>
+      #splash {
+        --s-bg: #eef2f6;
+        --s-fg: #14213d;
+        --s-muted: #52607a;
+        --s-paper: #ffffff;
+        --s-line: #14213d;
+        --s-ink: #14213d;
+        --s-accent: #a23e21;
+        --s-ok: #166e40;
+        --s-warn: #855600;
+        --s-err: #ae3232;
+        --s-info: #275cb8;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        background-color: var(--s-bg);
+        background-image:
+          linear-gradient(
+            color-mix(in srgb, var(--s-fg) 10%, transparent) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--s-fg) 10%, transparent) 1px,
+            transparent 1px
+          );
+        background-size: 28px 28px;
+        background-position: center;
+        color: var(--s-fg);
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          sans-serif;
+        transition: opacity 0.45s ease;
+      }
+      #splash.is-off {
+        opacity: 0;
+        pointer-events: none;
+      }
+      /* Sessiyada bir marta ko'rsatiladi — bayroqni `<head>` dagi skript
+         qo'yadi, ya'ni ilk bo'yashdan oldin (miltillash bo'lmaydi). */
+      html.no-splash #splash {
+        display: none;
+      }
+
+      .splash-stage {
+        display: grid;
+        justify-items: center;
+        gap: 22px;
+        transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #splash.is-off .splash-stage {
+        transform: translateY(-14px);
+      }
+
+      /* ── Atom: orbitalar avval CHIZILADI, keyin aylanadi ─────────── */
+      .splash-atom {
+        width: 148px;
+        height: 148px;
+        overflow: visible;
+      }
+      .splash-atom .orb {
+        transform-box: view-box;
+        transform-origin: 100px 100px;
+        animation: s-spin var(--d) linear infinite;
+      }
+      .splash-atom ellipse {
+        fill: none;
+        stroke: var(--s-fg);
+        stroke-opacity: 0.3;
+        stroke-width: 2.5;
+        stroke-dasharray: 420;
+        stroke-dashoffset: 420;
+        animation: s-draw 0.8s cubic-bezier(0.6, 0, 0.2, 1) forwards;
+        animation-delay: var(--w);
+      }
+      .splash-atom .orb-a ellipse {
+        stroke: var(--s-accent);
+        stroke-opacity: 1;
+        stroke-width: 3.5;
+      }
+      .splash-atom .e {
+        fill: var(--s-accent);
+        opacity: 0;
+        animation: s-fade 0.3s ease forwards;
+        animation-delay: 0.9s;
+      }
+      /* Yadro — logotipdagi kesik burchakli kvadrat */
+      .splash-atom .core {
+        fill: var(--s-accent);
+        stroke: var(--s-line);
+        stroke-width: 3;
+        transform-box: fill-box;
+        transform-origin: center;
+        transform: scale(0);
+        animation: s-core 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        animation-delay: 0.35s;
+      }
+
+      /* ── Nom ──────────────────────────────────────────────────────── */
+      .splash-name {
+        display: flex;
+        font-size: 46px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+      .splash-name .ch {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(0.45em);
+        animation: s-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        animation-delay: calc(0.55s + var(--i) * 0.05s);
+      }
+      .splash-name .js {
+        color: var(--s-accent);
+      }
+
+      /* ── Element kataklari: progres ham shu ──────────────────────── */
+      .splash-cells {
+        display: flex;
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .splash-cells .cell {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 46px;
+        border: 2px solid var(--s-line);
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--t) 16%, var(--s-paper));
+        box-shadow: 3px 3px 0 var(--s-ink);
+        color: var(--t);
+        font-size: 17px;
+        font-weight: 800;
+        opacity: 0;
+        transform: translateY(10px) scale(0.85);
+        animation:
+          s-cell 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+          s-bob 2.4s ease-in-out infinite;
+        animation-delay:
+          calc(0.9s + var(--i) * 0.11s),
+          calc(1.8s + var(--i) * 0.2s);
+      }
+      .splash-cells .cell b {
+        position: absolute;
+        top: 3px;
+        left: 5px;
+        font:
+          600 9px/1 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+        color: var(--s-fg);
+      }
+
+      @keyframes s-draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes s-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes s-fade {
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes s-core {
+        to {
+          transform: scale(1);
+        }
+      }
+      @keyframes s-rise {
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes s-cell {
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      /* Ilova sekin yuklansa ham ekran «tirik» qolsin: kataklar navbatma-
+         navbat bir oz ko'tariladi. `translate` — `transform` bilan
+         to'qnashmaydi (kirish animatsiyasi o'shani ishlatadi). */
+      @keyframes s-bob {
+        0%,
+        70%,
+        100% {
+          translate: 0 0;
+        }
+        35% {
+          translate: 0 -5px;
+        }
+      }
+
+      /* Imzo — ekran pastida, sahnadan keyin ohista chiqadi. */
+      #splash .splash-sig {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: max(22px, env(safe-area-inset-bottom));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font: 500 12px/1.4 ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+          sans-serif;
+        color: var(--s-muted);
+        letter-spacing: 0.02em;
+        text-align: center;
+        opacity: 0;
+        animation: splash-sig-in 0.6s 0.9s ease-out forwards;
+      }
+      #splash .splash-sig b {
+        font-weight: 700;
+        font-size: 13px;
+        color: var(--s-fg, currentColor);
+      }
+      @keyframes splash-sig-in {
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* Harakatga sezgir foydalanuvchilar uchun — statik ko'rinish */
+      @media (prefers-reduced-motion: reduce) {
+        #splash *,
+        #splash .splash-stage {
+          animation: none !important;
+          opacity: 1 !important;
+          transform: none !important;
+          transition: none !important;
+        }
+        .splash-atom ellipse {
+          stroke-dashoffset: 0;
+        }
+      }
+    </style>
+
+    <script>
+      // Splash faqat sessiyada birinchi ochilishda. Bu skript `<head>` da,
+      // ya'ni splash bo'yalguncha ishlaydi — "miltillash" bo'lmaydi.
+      // `?nosplash` bilan ham o'tkazib yuborsa bo'ladi (splash.ts).
+      try {
+        if (sessionStorage.getItem("atomjs.splashed") === "1") {
+          window.__splashSkip = true;
+          document.documentElement.classList.add("no-splash");
+        } else {
+          sessionStorage.setItem("atomjs.splashed", "1");
+        }
+      } catch (e) {}
+    </script>
+
+    <!-- Yandex Metrika — tashrif statistikasi. Skript async yuklanadi,
+         splashga ham, bundle'ga ham xalaqit qilmaydi.
+
+         DIQQAT: bu fayl `npm run dev` da ham ishlaydi, shuning uchun
+         lokal hostda skript UMUMAN yuklanmaydi — aks holda ishlab chiqish
+         paytidagi har refresh haqiqiy tashrif bo'lib sanalardi.
+
+         Router sahifa almashtirganda brauzer qayta yuklanmaydi, ya'ni bu
+         yerdagi `init` faqat BIRINCHI ochilishni yozadi. Qolgan sahifalar
+         `src/lib/metrika.ts` dagi `trackPage()` orqali yuboriladi
+         (`Shell` chaqiradi) — usiz hamma tashrif bitta manzilga
+         yig'ilib qolardi. -->
+    <script type="text/javascript">
+      if (
+        !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) &&
+        !location.hostname.endsWith(".local")
+      ) {
+        (function (m, e, t, r, i, k, a) {
+          m[i] =
+            m[i] ||
+            function () {
+              (m[i].a = m[i].a || []).push(arguments);
+            };
+          m[i].l = 1 * new Date();
+          for (var j = 0; j < document.scripts.length; j++) {
+            if (document.scripts[j].src === r) {
+              return;
+            }
+          }
+          ((k = e.createElement(t)),
+            (a = e.getElementsByTagName(t)[0]),
+            (k.async = 1),
+            (k.src = r),
+            a.parentNode.insertBefore(k, a));
+        })(
+          window,
+          document,
+          "script",
+          "https://mc.yandex.ru/metrika/tag.js?id=111449462",
+          "ym",
+        );
+
+        ym(111449462, "init", {
+          webvisor: true,
+          clickmap: true,
+          referrer: document.referrer,
+          url: location.href,
+          accurateTrackBounce: true,
+          trackLinks: true,
+        });
+      }
+    </script>
+    <!-- /Yandex Metrika -->
+    <script type="module" crossorigin src="/assets/index-DXWK4CxW.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-QTnfLwEv.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-8iLmkU58.js">
+    <link rel="modulepreload" crossorigin href="/assets/supabase-7T0kFNdj.js">
+    <link rel="modulepreload" crossorigin href="/assets/auth-CAP04bbz.js">
+    <link rel="modulepreload" crossorigin href="/assets/wallet-B4vC1zkE.js">
+    <link rel="modulepreload" crossorigin href="/assets/createLucideIcon-Cv8YJ-pK.js">
+    <link rel="modulepreload" crossorigin href="/assets/domain-D_lqX7rH.js">
+    <link rel="modulepreload" crossorigin href="/assets/poll-CyRpcrjK.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DPcRtB8F.css">
+  </head>
+  <body>
+    <!-- Metrika'ning JS'siz pikseli. `<head>` da tura olmaydi: u yerdagi
+         `<noscript>` ichiga faqat link/style/meta ruxsat etilgan, `<div>`
+         esa build'da "disallowed-content-in-noscript-in-head" xatosini
+         beradi va brauzer uni baribir `<body>` ga ko'chirib yuboradi. -->
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/111449462"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+
+    <div id="root"></div>
+
+    <div id="splash">
+      <div class="splash-stage">
+        <svg class="splash-atom" viewBox="0 0 200 200" aria-hidden="true">
+          <g transform="rotate(60 100 100)">
+            <g class="orb" style="--d: 11s">
+              <ellipse cx="100" cy="100" rx="90" ry="34" style="--w: 0.1s" />
+            </g>
+          </g>
+          <g transform="rotate(-60 100 100)">
+            <g class="orb" style="--d: 14s">
+              <ellipse cx="100" cy="100" rx="90" ry="34" style="--w: 0.2s" />
+            </g>
+          </g>
+          <g class="orb orb-a" style="--d: 7s">
+            <ellipse cx="100" cy="100" rx="90" ry="34" style="--w: 0s" />
+            <circle class="e" cx="190" cy="100" r="7" />
+          </g>
+          <path class="core" d="M85 85h30v21l-9 9H85z" />
+        </svg>
+
+        <div class="splash-name">
+          <span class="ch" style="--i: 0">a</span>
+          <span class="ch" style="--i: 1">t</span>
+          <span class="ch" style="--i: 2">o</span>
+          <span class="ch" style="--i: 3">m</span>
+          <span class="ch js" style="--i: 4">j</span>
+          <span class="ch js" style="--i: 5">s</span>
+        </div>
+
+        <div class="splash-cells" aria-hidden="true">
+          <span class="cell" style="--i: 0; --t: var(--s-accent)"><b>1</b>At</span>
+          <span class="cell" style="--i: 1; --t: var(--s-warn)"><b>2</b>Ak</span>
+          <span class="cell" style="--i: 2; --t: var(--s-info)"><b>3</b>Ty</span>
+          <span class="cell" style="--i: 3; --t: var(--s-ok)"><b>4</b>Wd</span>
+          <span class="cell" style="--i: 4; --t: var(--s-err)"><b>5</b>Un</span>
+          <span class="cell" style="--i: 5; --t: var(--s-muted)"><b>6</b>Vt</span>
+        </div>
+      </div>
+      <!-- Imzo (2.6.12): muallif, yil, versiya va reliz sanasi. Versiya va
+           sana build paytida `vite.config.ts` dagi `splashSignature`
+           plagini qo'yadi (`version.ts` va `releases.ts` dan). -->
+      <div class="splash-sig">
+        <b>Elbek Atom Giyozov</b>
+        <span>© 2026 · v3.3.1 · 13.10.2026</span>
+      </div>
+    </div>
+
+    <script>
+      // Rejim ranglari — splash sahifa rangi bilan mos bo'lsin, aks holda
+      // ochilishda oq/qora «flash» bo'ladi. Qiymatlar `themes.ts` dagi
+      // LAB_SHELL / LAB_DARK + `labVars()` bilan bir xil; rejim
+      // `sessionStorage['atomjs.mode']` dan — standart TO'Q, «system» bo'lsa
+      // qurilma tanlovidan (`theme.tsx` dagi `readMode()` bilan bir xil).
+      // __splashAt — animatsiya to'liq ko'rinishi uchun boshlanish vaqti.
+      window.__splashAt = Date.now();
+      try {
+        var mode = sessionStorage.getItem("atomjs.mode");
+        var dark =
+          mode !== "light" &&
+          (mode !== "system" ||
+            (window.matchMedia &&
+              matchMedia("(prefers-color-scheme: dark)").matches));
+        if (dark) {
+          var el = document.getElementById("splash");
+          var c = {
+            bg: "#0e1526",
+            fg: "#e6ebf5",
+            muted: "#94a1bb",
+            paper: "#162038",
+            line: "color-mix(in srgb, #e6ebf5 42%, transparent)",
+            ink: "#03060d",
+            accent: "#ff7a4d",
+            ok: "#3ccf86",
+            warn: "#f2b43c",
+            err: "#ff6161",
+            info: "#6aa6ff",
+          };
+          for (var k in c) el.style.setProperty("--s-" + k, c[k]);
+          document.body.style.background = c.bg;
+          var tc = document.querySelector('meta[name="theme-color"]');
+          if (tc) tc.setAttribute("content", c.bg);
+        }
+      } catch (e) {}
+    </script>
+
+  </body>
+</html>

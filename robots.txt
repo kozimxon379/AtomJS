@@ -1,0 +1,11 @@
+# atomjs — indekslash qoidalari.
+# `/host` va `/send` — o'qituvchi/egasi sahifalari, qidiruvda kerak emas.
+# `/play` esa PIN talab qiladi: indekslansa ham foydasi yo'q.
+User-agent: *
+Allow: /
+Disallow: /host
+Disallow: /send
+Disallow: /changelog
+Disallow: /profile
+
+Sitemap: https://atomjs.uz/sitemap.xml

@@ -1,0 +1,19 @@
+{
+  "name": "atomjs-clone",
+  "version": "3.1.0",
+  "description": "atomjs — brauzerdagi kod laboratoriyasi (1-ga-1 klon)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "atomjs",
+    "javascript",
+    "laboratoriya",
+    "coding",
+    "tutorial"
+  ],
+  "author": "Elbek Atom Giyozov",
+  "license": "ISC"
+}

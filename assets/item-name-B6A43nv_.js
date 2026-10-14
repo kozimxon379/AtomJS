@@ -1,0 +1,1 @@
+import{n as e}from"./quiz-avatars-DUYV4eQW.js";import{dn as t}from"./index-DXWK4CxW.js";function n(n,r){let i=n.id.split(`:`)[1];if(n.kind===`skin`){let t=e.find(e=>e.id===Number(i));return t?r(t.nameKey):n.id}return n.kind===`frame`?r(`frame_${i}`):n.kind===`bg`?r(`bg_${i}`):n.kind===`title`?r(`title_${i}`):t.find(e=>e.id===i)?.name??i}export{n as t};

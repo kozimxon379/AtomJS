@@ -1,0 +1,1 @@
+import{n as e,t}from"./vendor-8iLmkU58.js";var n=t();function r({username:t,className:r=``,children:i}){return t?(0,n.jsx)(e,{to:`/u/${t}`,title:`@${t}`,className:`${r} hover:underline`,children:i}):(0,n.jsx)(`span`,{className:r,children:i})}export{r as t};
